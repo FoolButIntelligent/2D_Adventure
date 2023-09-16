@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,13 +8,18 @@ public class PlayerController : MonoBehaviour
 {
     public PlayerInputControl inputControl;
     public Vector2 inputDirection;
+
+    [Header("Basic parameters")]
     public float speed;
+    public float jumpForce;
     public Rigidbody2D rb;
     private SpriteRenderer rbSprite;
 
     private void Awake()
     {
-        inputControl = new PlayerInputControl(); 
+        inputControl = new PlayerInputControl();
+        inputControl.Gameplay.Jump.started += Jump;
+
         rbSprite = GetComponent<SpriteRenderer>();
     }
 
@@ -48,5 +54,11 @@ public class PlayerController : MonoBehaviour
         if(inputDirection.x < 0)
             rbSprite.flipX = true;
         //ÈËÎï·­×ª
+    }
+
+    private void Jump(InputAction.CallbackContext obj)
+    {
+        //Debug.Log("JUMP");
+        rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
     }
 }
