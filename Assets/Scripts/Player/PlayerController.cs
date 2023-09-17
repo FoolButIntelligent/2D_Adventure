@@ -8,8 +8,8 @@ public class PlayerController : MonoBehaviour
 {
     public PlayerInputControl inputControl;
     public Vector2 inputDirection;
-
-    [Header("Basic parameters")]
+    private PhysicsCheck physicsCheck;
+    [Header("Basic arameters")]
     public float speed;
     public float jumpForce;
     public Rigidbody2D rb;
@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        physicsCheck = GetComponent<PhysicsCheck>();
         inputControl = new PlayerInputControl();
         inputControl.Gameplay.Jump.started += Jump;
 
@@ -59,6 +60,7 @@ public class PlayerController : MonoBehaviour
     private void Jump(InputAction.CallbackContext obj)
     {
         //Debug.Log("JUMP");
-        rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+        if(physicsCheck.isGround)
+          rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
     }
 }
