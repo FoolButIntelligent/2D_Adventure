@@ -9,17 +9,35 @@ public class PlayerController : MonoBehaviour
     public PlayerInputControl inputControl;
     public Vector2 inputDirection;
     private PhysicsCheck physicsCheck;
+    public Rigidbody2D rb;
+    private SpriteRenderer rbSprite;
     [Header("Basic arameters")]
     public float speed;
     public float jumpForce;
-    public Rigidbody2D rb;
-    private SpriteRenderer rbSprite;
+    private float walkSpeed => speed / 2.5f;//2.5 (speed too fast to reach that number)
+    private float runSpeed;
+    
 
     private void Awake()
     {
         physicsCheck = GetComponent<PhysicsCheck>();
+
         inputControl = new PlayerInputControl();
         inputControl.Gameplay.Jump.started += Jump;
+
+        #region ForceToWalk
+        runSpeed = speed;
+        inputControl.Gameplay.WalkButton.performed += ctx =>
+        {
+            if (physicsCheck.isGround)
+                speed = walkSpeed;
+        };
+        inputControl.Gameplay.WalkButton.canceled += ctx =>
+        {
+            if (physicsCheck.isGround)
+                speed = runSpeed;
+        };
+        #endregion
 
         rbSprite = GetComponent<SpriteRenderer>();
     }
@@ -48,13 +66,13 @@ public class PlayerController : MonoBehaviour
     {
         rb.velocity = new Vector2(inputDirection.x * speed * Time.deltaTime,rb.velocity.y);
 
-        //ÈËÎïÃæ³¯·½Ïò
+        //ï¿½ï¿½ï¿½ï¿½ï¿½æ³¯ï¿½ï¿½ï¿½ï¿½
 
         if (inputDirection.x > 0)
             rbSprite.flipX = false;
         if(inputDirection.x < 0)
             rbSprite.flipX = true;
-        //ÈËÎï·­×ª
+        //ï¿½ï¿½ï¿½ï·­×ª
     }
 
     private void Jump(InputAction.CallbackContext obj)
