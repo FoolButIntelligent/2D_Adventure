@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     [Header("Basic arameters")]
     public float speed;
     public float jumpForce;
-    private float walkSpeed => speed / 2.5f;//2.5 (speed too fast to reach that number)
+    private float walkSpeed => speed / 2.5f;//why 2.5?(speed too fast to reach that number)
     private float runSpeed;
     
 

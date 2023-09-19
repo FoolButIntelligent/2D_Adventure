@@ -21,5 +21,6 @@ public class PlayerAnimation : MonoBehaviour
     public void SetAnimation()
     {
         anim.SetFloat("velocityX",Mathf.Abs(rb.velocity.x));
+        anim.SetFloat("velocityY",rb.velocity.y);
     }
 }
