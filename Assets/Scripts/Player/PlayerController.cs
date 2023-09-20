@@ -10,20 +10,30 @@ public class PlayerController : MonoBehaviour
     public Vector2 inputDirection;
     private PhysicsCheck physicsCheck;
     public Rigidbody2D rb;
+    private CapsuleCollider2D coll;
     private SpriteRenderer rbSprite;
     [Header("Basic arameters")]
     public float speed;
     public float jumpForce;
     private float walkSpeed => speed / 2.5f;//why 2.5?(speed too fast to reach that number)
     private float runSpeed;
-    
+
+    public bool isCrouch;
+    private Vector2 originalOffset;
+    private Vector2 originalSize;
+
 
     private void Awake()
     {
         physicsCheck = GetComponent<PhysicsCheck>();
+        rbSprite = GetComponent<SpriteRenderer>();
+        coll = GetComponent<CapsuleCollider2D>();
 
         inputControl = new PlayerInputControl();
         inputControl.Gameplay.Jump.started += Jump;
+
+        originalOffset = coll.offset;
+        originalSize = coll.size;
 
         #region ForceToWalk
         runSpeed = speed;
@@ -39,7 +49,7 @@ public class PlayerController : MonoBehaviour
         };
         #endregion
 
-        rbSprite = GetComponent<SpriteRenderer>();
+        
     }
 
     private void OnEnable()
@@ -64,15 +74,31 @@ public class PlayerController : MonoBehaviour
 
     public void Move()
     {
-        rb.velocity = new Vector2(inputDirection.x * speed * Time.deltaTime,rb.velocity.y);
+        //character move
+        if(!isCrouch)
+          rb.velocity = new Vector2(inputDirection.x * speed * Time.deltaTime,rb.velocity.y);
 
-        //�����泯����
+        //character flip
 
         if (inputDirection.x > 0)
             rbSprite.flipX = false;
         if(inputDirection.x < 0)
             rbSprite.flipX = true;
-        //���﷭ת
+
+        //crouch
+        isCrouch = inputDirection.y < -0.5f && physicsCheck.isGround;
+        if (isCrouch)
+        {
+            //change collider size
+            coll.offset = new Vector2(-0.05f, 0.85f);
+            coll.size = new Vector2(0.7f, 1.7f);
+        }
+        else
+        {
+            //recover collider size
+            coll.size = originalSize;
+            coll.offset = originalOffset;
+        }
     }
 
     private void Jump(InputAction.CallbackContext obj)
