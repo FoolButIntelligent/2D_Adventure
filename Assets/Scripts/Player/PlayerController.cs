@@ -107,4 +107,10 @@ public class PlayerController : MonoBehaviour
         if(physicsCheck.isGround)
           rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
     }
+
+    ////测试
+    //private void OnTriggerStay2D(Collider2D other)
+    //{
+    //    Debug.Log(other.name);
+    //}
 }
