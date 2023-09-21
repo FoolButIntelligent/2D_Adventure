@@ -29,4 +29,10 @@ public class PlayerAnimation : MonoBehaviour
         anim.SetBool("isGround", physicsCheck.isGround);
         anim.SetBool("isCrouch", playerController.isCrouch);
     }
+
+    public void HurtAnimation()
+    {
+        anim.SetTrigger("hurt");
+    }
+
 }
