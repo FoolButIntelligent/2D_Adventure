@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     private Vector2 originalOffset;
     private Vector2 originalSize;
 
+    public float hurtForce;
+    public bool isHurt;
+    public bool isDead;
 
     private void Awake()
     {
@@ -69,7 +72,10 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Move();
+        if (!isHurt)
+        {
+            Move();
+        }  
     }
 
     public void Move()
@@ -94,7 +100,7 @@ public class PlayerController : MonoBehaviour
             coll.size = new Vector2(0.7f, 1.7f);
         }
         else
-        {
+        { 
             //recover collider size
             coll.size = originalSize;
             coll.offset = originalOffset;
@@ -108,9 +114,26 @@ public class PlayerController : MonoBehaviour
           rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
     }
 
-    ////测试
-    //private void OnTriggerStay2D(Collider2D other)
-    //{
-    //    Debug.Log(other.name);
-    //}
+    public void GetHurt(Transform attaker)
+    {
+        isHurt = true;
+        rb.velocity = Vector2.zero;
+        Vector2 dir = new Vector2(transform.position.x - attaker.position.x, 0).normalized;
+        rb.AddForce(dir * hurtForce, ForceMode2D.Impulse); 
+    }
+
+    public void PlayerDead()
+    {
+        isDead = true;
+        inputControl.Gameplay.Disable();
+    }
+
+    //Avoid attack by enemy when player dead
+    private void CheckState()
+    {
+        if (isDead)
+            gameObject.layer = LayerMask.NameToLayer("Enemy");
+        else
+            gameObject.layer = LayerMask.NameToLayer("Player");
+    }
 }

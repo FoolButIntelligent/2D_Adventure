@@ -15,6 +15,7 @@ public class Character : MonoBehaviour
     public bool invulnerable;
 
     public UnityEvent<Transform> OnTakeDamage;
+    public UnityEvent OnDie;
 
     private void Start()
     {
@@ -23,7 +24,7 @@ public class Character : MonoBehaviour
 
     private void Update()
     {
-        if (invulnerable)
+        if(invulnerable)
         {
             invulnerableCounter -= Time.deltaTime;
             if (invulnerableCounter <= 0)
@@ -51,6 +52,7 @@ public class Character : MonoBehaviour
         {
             currentHealth = 0;
             //death trigger
+            OnDie?.Invoke();
         }
     }
 
