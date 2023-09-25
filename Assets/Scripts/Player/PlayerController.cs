@@ -12,31 +12,38 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D rb;
     private CapsuleCollider2D coll;
     private SpriteRenderer rbSprite;
+    private PlayerAnimation playerAnimation;
     [Header("Basic arameters")]
     public float speed;
     public float jumpForce;
+    public float hurtForce;
     private float walkSpeed => speed / 2.5f;//why 2.5?(speed too fast to reach that number)
     private float runSpeed;
 
-    public bool isCrouch;
     private Vector2 originalOffset;
     private Vector2 originalSize;
 
-    public float hurtForce;
+    [Header("State")]
+    public bool isCrouch;
+    
     public bool isHurt;
     public bool isDead;
+    public bool isAttack;
 
     private void Awake()
     {
         physicsCheck = GetComponent<PhysicsCheck>();
         rbSprite = GetComponent<SpriteRenderer>();
         coll = GetComponent<CapsuleCollider2D>();
+        playerAnimation = GetComponent<PlayerAnimation>(); 
 
         inputControl = new PlayerInputControl();
-        inputControl.Gameplay.Jump.started += Jump;
 
         originalOffset = coll.offset;
         originalSize = coll.size;
+
+        //jump
+        inputControl.Gameplay.Jump.started += Jump;
 
         #region ForceToWalk
         runSpeed = speed;
@@ -52,6 +59,8 @@ public class PlayerController : MonoBehaviour
         };
         #endregion
 
+        //attack
+        inputControl.Gameplay.Attack.started += PlayerAttack;
         
     }
 
@@ -114,6 +123,14 @@ public class PlayerController : MonoBehaviour
           rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
     }
 
+
+    private void PlayerAttack(InputAction.CallbackContext obj)
+    {
+        playerAnimation.PlayerAttack();
+        isAttack = true;
+    }
+
+    #region UnityEvent
     public void GetHurt(Transform attaker)
     {
         isHurt = true;
@@ -127,6 +144,7 @@ public class PlayerController : MonoBehaviour
         isDead = true;
         inputControl.Gameplay.Disable();
     }
+    #endregion
 
     //Avoid attack by enemy when player dead
     private void CheckState()
