@@ -81,7 +81,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!isHurt)
+        if (!isHurt && !isAttack)
         {
             Move();
         }  
