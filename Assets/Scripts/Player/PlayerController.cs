@@ -22,7 +22,9 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 originalOffset;
     private Vector2 originalSize;
-
+    [Header("Physics Material")]
+    public PhysicsMaterial2D normal;
+    public PhysicsMaterial2D wall;
     [Header("State")]
     public bool isCrouch;
     
@@ -77,6 +79,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         inputDirection = inputControl.Gameplay.Move.ReadValue<Vector2>();
+        CheckState();
     }
 
     private void FixedUpdate()
@@ -146,12 +149,14 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
-    //Avoid attack by enemy when player dead
+    //Avoid attack by enemy when player dead && physics material check
     private void CheckState()
     {
         if (isDead)
             gameObject.layer = LayerMask.NameToLayer("Enemy");
         else
             gameObject.layer = LayerMask.NameToLayer("Player");
+
+        coll.sharedMaterial = physicsCheck.isGround ? normal : wall;
     }
 }
