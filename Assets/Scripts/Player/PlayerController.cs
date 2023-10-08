@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     private CapsuleCollider2D coll;
     private SpriteRenderer rbSprite;
     private PlayerAnimation playerAnimation;
-    [Header("Basic arameters")]
+    [Header("Basic Parameters")]
     public float speed;
     public float jumpForce;
     public float hurtForce;
