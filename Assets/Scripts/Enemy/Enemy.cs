@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour
     public float chaseSpeed;
     public float currentSpeed;
     public Vector3 faceDir;
+    public Transform attacker;
 
     [Header("TimeCounter")]
     public float waitTime;
@@ -53,6 +54,9 @@ public class Enemy : MonoBehaviour
         rb.velocity = new Vector2(currentSpeed * faceDir.x * Time.deltaTime, rb.velocity.y);
     }
 
+    /// <summary>
+    /// TimeCounter
+    /// </summary>
     public void TimeCounter()
     {
         if (wait)
@@ -65,5 +69,22 @@ public class Enemy : MonoBehaviour
                 transform.localScale = new Vector3(faceDir.x, 1, 1);
             }
         }
+    }
+
+    public void OnTakeDamage(Transform attackerTrans)
+    {
+        attacker = attackerTrans;
+        //turn around
+        if (attackerTrans.position.x - transform.position.x > 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        if (attackerTrans.position.x - transform.position.x < 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+
+        //hit back
+
     }
 }
