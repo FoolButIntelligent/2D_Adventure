@@ -25,7 +25,7 @@ public class PhysicsCheck : MonoBehaviour
 
         if (!manual)
         {
-            rightOffset = new Vector2((coll.bounds.size.x + coll.offset.x) / 2, coll.bounds.size.y / 2);
+            rightOffset = new Vector2(( coll.bounds.size.x + coll.offset.x) / 2, coll.bounds.size.y / 2);
             leftOffset = new Vector2(-rightOffset.x, rightOffset.y);
         }
     }

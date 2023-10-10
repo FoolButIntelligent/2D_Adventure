@@ -14,6 +14,11 @@ public class Enemy : MonoBehaviour
     public float currentSpeed;
     public Vector3 faceDir;
 
+    [Header("TimeCounter")]
+    public float waitTime;
+    public float waitTimeCounter;
+    public bool wait;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -21,26 +26,44 @@ public class Enemy : MonoBehaviour
         physicsCheck = GetComponent<PhysicsCheck>();
 
         currentSpeed = normalSpeed;
+        waitTimeCounter = waitTime;
     }
 
     private void Update()
     {
         faceDir = new Vector3(-transform.localScale.x, 0, 0);
 
-        if (physicsCheck.touchLeftWall || physicsCheck.touchRightWall)
+        if ((physicsCheck.touchLeftWall && transform.localScale.x > 0)|| (physicsCheck.touchRightWall && transform.localScale.x < 0))
         {
-            transform.localScale = new Vector3(faceDir.x, 1, 1);
+            wait = true;
+            anim.SetBool("walk", false);
         }
+
+        TimeCounter();
         
     }
 
     private void FixedUpdate()
-    {
+    { 
         Move();
     }
 
     public virtual void Move()
     {
         rb.velocity = new Vector2(currentSpeed * faceDir.x * Time.deltaTime, rb.velocity.y);
+    }
+
+    public void TimeCounter()
+    {
+        if (wait)
+        {
+            waitTimeCounter -= Time.deltaTime;
+            if (waitTimeCounter <= 0)
+            {
+                wait = false;
+                waitTimeCounter = waitTime;
+                transform.localScale = new Vector3(faceDir.x, 1, 1);
+            }
+        }
     }
 }
