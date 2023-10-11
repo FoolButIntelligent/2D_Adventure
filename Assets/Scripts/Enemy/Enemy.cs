@@ -14,11 +14,16 @@ public class Enemy : MonoBehaviour
     public float currentSpeed;
     public Vector3 faceDir;
     public Transform attacker;
+    public float hurtForce;
 
     [Header("TimeCounter")]
     public float waitTime;
     public float waitTimeCounter;
     public bool wait;
+
+    [Header("State")]
+    public bool isHurt;
+    public bool isDead;
 
     private void Awake()
     {
@@ -45,8 +50,9 @@ public class Enemy : MonoBehaviour
     }
 
     private void FixedUpdate()
-    { 
-        Move();
+    {
+        if(!isHurt & !isDead)
+            Move();
     }
 
     public virtual void Move()
@@ -85,6 +91,29 @@ public class Enemy : MonoBehaviour
         }
 
         //hit back
+        isHurt = true;
+        anim.SetTrigger("hurt");
+        Vector2 dir = new Vector2(transform.position.x - attackerTrans.position.x, 0).normalized;
 
+        StartCoroutine(OnHurt(dir));
+    }
+
+    IEnumerator OnHurt(Vector2 dir)
+    {
+        rb.AddForce(dir * hurtForce, ForceMode2D.Impulse);
+        yield return new WaitForSeconds(0.5f);
+        isHurt = false;
+    }
+
+    public void OnDie()
+    {
+        gameObject.layer = 2;
+        anim.SetBool("dead", true);
+        isDead = true;
+    }
+
+    public void DestroyAfterAnimation()
+    {
+        Destroy(this.gameObject);
     }
 }
