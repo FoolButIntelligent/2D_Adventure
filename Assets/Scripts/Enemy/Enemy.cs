@@ -5,13 +5,13 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     Rigidbody2D rb;
-    protected Animator anim;
-    PhysicsCheck physicsCheck;
+    [HideInInspector]public Animator anim;
+    [HideInInspector] public PhysicsCheck physicsCheck;
 
     [Header("Basic Parameters")]
     public float normalSpeed;
     public float chaseSpeed;
-    public float currentSpeed;
+    [HideInInspector] public float currentSpeed;
     public Vector3 faceDir;
     public Transform attacker;
     public float hurtForce;
@@ -25,7 +25,17 @@ public class Enemy : MonoBehaviour
     public bool isHurt;
     public bool isDead;
 
-    private void Awake()
+    protected BaseState patrolState;
+    protected BaseState chaseState;
+    private BaseState currentState;
+
+    private void OnEnable()
+    {
+        currentState = patrolState;
+        currentState.OnEnter(this);
+    }
+
+    protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
@@ -39,20 +49,21 @@ public class Enemy : MonoBehaviour
     {
         faceDir = new Vector3(-transform.localScale.x, 0, 0);
 
-        if ((physicsCheck.touchLeftWall && transform.localScale.x > 0)|| (physicsCheck.touchRightWall && transform.localScale.x < 0))
-        {
-            wait = true;
-            anim.SetBool("walk", false);
-        }
-
+        currentState.LogicUpdate();
         TimeCounter();
-        
     }
 
     private void FixedUpdate()
     {
-        if(!isHurt & !isDead)
+        if(!isHurt & !isDead && !wait)
             Move();
+
+        currentState.PhysicsUpdate();
+    }
+
+    private void OnDisable()
+    {
+        currentState.OnExit();  
     }
 
     public virtual void Move()
