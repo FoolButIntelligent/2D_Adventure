@@ -11,7 +11,7 @@ public class Character : MonoBehaviour
 
     [Header("Damage Invincible")]
     public float invulnerableDuration;
-    private float invulnerableCounter;
+    [HideInInspector]public float invulnerableCounter;
     public bool invulnerable;
 
     public UnityEvent<Character> OnHealthChange;
