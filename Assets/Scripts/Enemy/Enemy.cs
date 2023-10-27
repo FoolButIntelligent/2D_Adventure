@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D),typeof(Animator),typeof(PhysicsCheck))]
 public class Enemy : MonoBehaviour
 {
-    Rigidbody2D rb;
+    [HideInInspector]public Rigidbody2D rb;
     [HideInInspector]public Animator anim;
     [HideInInspector] public PhysicsCheck physicsCheck;
 
@@ -16,6 +16,7 @@ public class Enemy : MonoBehaviour
     public Vector3 faceDir;
     public Transform attacker;
     public float hurtForce;
+    public Vector3 spawnPoint;
 
     [Header("Test")]
     public Vector2 centerOffset;
@@ -52,7 +53,8 @@ public class Enemy : MonoBehaviour
         physicsCheck = GetComponent<PhysicsCheck>();
 
         currentSpeed = normalSpeed;
-        //waitTimeCounter = waitTime;
+        waitTimeCounter = waitTime;
+        spawnPoint = transform.position;
     }
 
     private void Update()
@@ -106,7 +108,7 @@ public class Enemy : MonoBehaviour
     }
 
 
-    public bool FindPlayer()
+    public virtual bool FindPlayer()
     {
         return Physics2D.BoxCast(transform.position + (Vector3)centerOffset, checkSize, 0, faceDir, checkDistance, attackLayer);
     }
@@ -124,6 +126,11 @@ public class Enemy : MonoBehaviour
         currentState.OnExit();
         currentState = newState;
         currentState.OnEnter(this);
+    }
+
+    public virtual Vector3 GetNewPoint()
+    {
+        return transform.position;
     }
 
     #region Event excute method
@@ -170,7 +177,7 @@ public class Enemy : MonoBehaviour
 
     #endregion
 
-    private void OnDrawGizmosSelected()
+    public virtual void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(transform.position + (Vector3)centerOffset + new Vector3(checkDistance * -transform.localScale.x,0), 0.2f);
     }
