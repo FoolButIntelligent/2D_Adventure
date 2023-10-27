@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour
     private PhysicsCheck physicsCheck;
     public Rigidbody2D rb;
     private CapsuleCollider2D coll;
-    private SpriteRenderer rbSprite;
     private PlayerAnimation playerAnimation;
     [Header("Basic Parameters")]
     public float speed;
@@ -35,7 +34,6 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         physicsCheck = GetComponent<PhysicsCheck>();
-        rbSprite = GetComponent<SpriteRenderer>();
         coll = GetComponent<CapsuleCollider2D>();
         playerAnimation = GetComponent<PlayerAnimation>(); 
 
@@ -99,9 +97,9 @@ public class PlayerController : MonoBehaviour
         //character flip
 
         if (inputDirection.x > 0)
-            rbSprite.flipX = false;
-        if(inputDirection.x < 0)
-            rbSprite.flipX = true;
+            transform.localScale = new Vector3(1, 1, 1);
+        if (inputDirection.x < 0)
+            transform.localScale = new Vector3(-1, 1, 1);
 
         //crouch
         isCrouch = inputDirection.y < -0.5f && physicsCheck.isGround;
