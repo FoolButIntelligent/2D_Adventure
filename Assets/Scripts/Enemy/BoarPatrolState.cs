@@ -33,8 +33,7 @@ public class BoarPatrolState : BaseState
 
     public override void PhysicsUpdate()
     {
-        if (currentEnemy.isDead && currentEnemy.isHurt && currentEnemy.wait)
-            return;
+        
     }
 
     public override void OnExit()
