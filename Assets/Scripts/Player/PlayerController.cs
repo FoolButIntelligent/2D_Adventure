@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     [Header("Basic Parameters")]
     public float speed;
     public float jumpForce;
+    public float walljumpForce;
     public float hurtForce;
     private float walkSpeed => speed / 2.5f;//why 2.5?(speed too fast to reach that number)
     private float runSpeed;
@@ -26,10 +27,10 @@ public class PlayerController : MonoBehaviour
     public PhysicsMaterial2D wall;
     [Header("State")]
     public bool isCrouch;
-    
     public bool isHurt;
     public bool isDead;
     public bool isAttack;
+    public bool wallJump;
 
     private void Awake()
     {
@@ -91,7 +92,7 @@ public class PlayerController : MonoBehaviour
     public void Move()
     {
         //character move
-        if(!isCrouch)
+        if (!isCrouch && !wallJump)
           rb.velocity = new Vector2(inputDirection.x * speed * Time.deltaTime,rb.velocity.y);
 
         //character flip
@@ -119,9 +120,14 @@ public class PlayerController : MonoBehaviour
 
     private void Jump(InputAction.CallbackContext obj)
     {
-        //Debug.Log("JUMP");
         if(physicsCheck.isGround)
           rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+        else if (physicsCheck.onWall)
+        {
+            rb.AddForce(new Vector2(-inputDirection.x, 2.5f) * walljumpForce, ForceMode2D.Impulse);
+            wallJump = true;
+        }
+
     }
 
 
@@ -156,5 +162,19 @@ public class PlayerController : MonoBehaviour
             gameObject.layer = LayerMask.NameToLayer("Player");
 
         coll.sharedMaterial = physicsCheck.isGround ? normal : wall;
+
+        if (physicsCheck.onWall)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y / 2);
+        }
+        else
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
+        }
+
+        if (wallJump && rb.velocity.y < 0f)
+        {
+            wallJump = false;
+        }
     }
 }
