@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D rb;
     private CapsuleCollider2D coll;
     private PlayerAnimation playerAnimation;
+    private Character character;
     [Header("Basic Parameters")]
     public float speed;
     public float jumpForce;
@@ -19,6 +20,9 @@ public class PlayerController : MonoBehaviour
     public float hurtForce;
     private float walkSpeed => speed / 2.5f;//why 2.5?(speed too fast to reach that number)
     private float runSpeed;
+    public float slideDistance;
+    public float slideSpeed;
+    public int slidePowerCost;
 
     private Vector2 originalOffset;
     private Vector2 originalSize;
@@ -31,12 +35,14 @@ public class PlayerController : MonoBehaviour
     public bool isDead;
     public bool isAttack;
     public bool wallJump;
+    public bool isSlide;
 
     private void Awake()
     {
         physicsCheck = GetComponent<PhysicsCheck>();
         coll = GetComponent<CapsuleCollider2D>();
-        playerAnimation = GetComponent<PlayerAnimation>(); 
+        playerAnimation = GetComponent<PlayerAnimation>();
+        character = GetComponent<Character>();
 
         inputControl = new PlayerInputControl();
 
@@ -62,8 +68,10 @@ public class PlayerController : MonoBehaviour
 
         //attack
         inputControl.Gameplay.Attack.started += PlayerAttack;
-        
+        //slide
+        inputControl.Gameplay.Slide.started += Slide;
     }
+
 
     private void OnEnable()
     {
@@ -120,8 +128,13 @@ public class PlayerController : MonoBehaviour
 
     private void Jump(InputAction.CallbackContext obj)
     {
-        if(physicsCheck.isGround)
-          rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+        if (physicsCheck.isGround)
+        {
+            rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+            isSlide = false;
+            StopAllCoroutines();
+        }
+          
         else if (physicsCheck.onWall)
         {
             rb.AddForce(new Vector2(-inputDirection.x, 2.5f) * walljumpForce, ForceMode2D.Impulse);
@@ -135,6 +148,45 @@ public class PlayerController : MonoBehaviour
     {
         playerAnimation.PlayerAttack();
         isAttack = true;
+    }
+
+
+    private void Slide(InputAction.CallbackContext obj)
+    {
+        if (!isSlide && physicsCheck.isGround && character.currentPower >= slidePowerCost)
+        {
+            isSlide = true;
+            //gameObject.layer = LayerMask.NameToLayer("Enemy");
+            Debug.Log("sliding");
+            var targetPos = new Vector3(transform.position.x + slideDistance * transform.localScale.x, transform.position.y);
+
+            StartCoroutine(TriggerSlide(targetPos));
+
+            character.OnSlide(slidePowerCost);
+        }
+
+        
+    }
+
+    private IEnumerator TriggerSlide(Vector3 target)
+    {
+        do
+        {
+            yield return null;
+            if (!physicsCheck.isGround)
+                break;
+
+            if (physicsCheck.touchLeftWall && transform.localScale.x < 0f || physicsCheck.touchRightWall && transform.localScale.x > 0f)
+            {
+                isSlide = false;
+                break;
+            }
+            gameObject.layer = LayerMask.NameToLayer("Enemy");
+            rb.MovePosition(new Vector2(transform.position.x + transform.localScale.x * slideSpeed, transform.position.y));
+        }while (MathF.Abs(target.x - transform.position.x) > 0.1f);
+
+        isSlide = false;
+        gameObject.layer = LayerMask.NameToLayer("Player");
     }
 
     #region UnityEvent
